@@ -1,22 +1,36 @@
 import React,{useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
-import { getJobs } from "../services/job";
+import { deleteJob, getJobs } from "../services/job";
 import { verifyToken } from "../utils/auth";
+import toast from "react-hot-toast";
 function Home(){
     const [jobs, setJobs] = useState([]);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
     const [user, setUser] = useState(null);
-    useEffect(()=>{
-        const fetchJobs = async() =>{
-            setLoading(true)
-            const response = await getJobs({id:null});
-            if(response.status === 200){
-                setJobs(response.data);
+    const handleDelete=async(id)=>{
+        try{
+            const response = await deleteJob(id);
+            if(response.status===200){
+                toast.success('Job deleted successfully');
+                fetchJobs();
             }
-            setLoading(false);
         }
+        catch(error){
+            toast.error('Job deletion failed')
+        }
+    }
+    const fetchJobs = async() =>{
+        setLoading(true)
+        const response = await getJobs({id:null});
+        if(response.status === 200){
+            setJobs(response.data);
+        }
+        setLoading(false);
+    }
+    useEffect(()=>{
+        
         const fetchUser = async() =>{
             const response = await verifyToken();
             console.log(response)
@@ -25,9 +39,11 @@ function Home(){
             }
             setAuthLoading(false)
         }
+        
         fetchUser();
         fetchJobs();
     },[])
+
     return (
         <div>
           <h1>Home</h1>
@@ -45,6 +61,7 @@ function Home(){
                             })}
                             <button onClick={()=> navigate(`/job/${job._id}`)}>View</button>
                             {authLoading || user===null ? <button disabled>Edit</button>:<button onClick={()=>navigate(`/edit/${job._id}`)}>Edit</button>}
+                            {authLoading || user===null ? <button disabled>Delete</button>:<button onClick={()=>handleDelete(job._id)}>Delete</button>}
                         </div>
                     
                     

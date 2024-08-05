@@ -28,3 +28,20 @@ export const getJobs = async({id})=>{
         return new Error(error.response.data.message);
     }
 }
+
+export const deleteJob = async(id)=>{
+    try{
+        const URL = `${BACKEND_URL}/job/${id}`;
+        const token = localStorage.getItem('token');
+        const response = await axios.delete(URL,{
+            headers:{
+                
+                'Authorization': token
+            }
+        });
+        return response;
+    }
+    catch(error){
+        return new Error(error.response.data.message);
+    }
+}
