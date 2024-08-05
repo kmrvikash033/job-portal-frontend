@@ -1,6 +1,7 @@
-import { useState } from "react"
-import { createJob } from "../services/job"
+import { useEffect, useState } from "react"
+import { createJob, getJobs } from "../services/job"
 import toast from "react-hot-toast"
+import { useParams } from "react-router-dom"
 
 const SKILLS = [
     {
@@ -32,6 +33,8 @@ const SKILLS = [
 
 
 export default function Create(){
+    const {id} = useParams();
+    const [loading,setLoading] = useState(false)
     const [formData, setFormData] = useState({
         companyName: null,
         logoUrl: null,
@@ -45,7 +48,21 @@ export default function Create(){
         about: null,
         skills: [],
         information: null
-    })
+    });
+    useEffect(()=>{
+        
+        const fetchJobs = async() =>{
+            
+            const response = await getJobs({id});
+            if(response.status === 200){
+                setFormData(response.data);
+            }
+            
+        }
+        if(id){
+            fetchJobs();
+        }
+    },[])
     const handleChange= (e)=>{
         if(e.target.name === 'skills'){
             return setFormData({
@@ -61,19 +78,24 @@ export default function Create(){
     }
 
     const handleSubmit= async(e)=>{
+        setLoading(true)
         e.preventDefault();
         const data ={...formData};
         data.skills = data.skills.join(',');
         try{
-            console.log(data);
-            const response = await createJob({data});
+            const jobId = id ? id :null;
+            const response = await createJob({data,id:jobId});
             console.log(response);
             if(response.status === 200){
-                toast.success('Job Created Successfully')
+                jobId?toast.success('Job Updated successfully'):toast.success('Job Created Successfully')
+                setFormData(response.data);
             }
         }
         catch(error){
             toast.error(error.message);
+        }
+        finally{
+            setLoading(false);
         }
     }
     
@@ -98,13 +120,13 @@ export default function Create(){
                 <input onChange={handleChange} value={formData.location} type="text" name="location" placeholder="Location"/>
                 <textarea onChange={handleChange} value={formData.description} name="description" id="" placeholder="Description"></textarea>
                 <textarea onChange={handleChange} value={formData.about} name="about" id="" placeholder="About"></textarea>
-                <select onChange={handleChange} value={formData.skills} name="skills" multiple>
+                <select onChange={handleChange} name="skills" multiple>
                     {SKILLS.map((skill, idx) => (
-                        <option key={idx} value={skill.value}>{skill.label}</option>
+                        <option selected={formData.skills.includes(skill.value)} key={idx} value={skill.value}>{skill.label}</option>
                     ))}
                 </select>
                 <input onChange={handleChange} value={formData.information} type="text" name="information" placeholder="Information" />
-                <button type="submit">Submit</button>
+                {id?<button disabled={loading} type="submit">update</button>:<button disabled={loading} type="submit">Submit</button> } 
             </form>
         </div>
     )
