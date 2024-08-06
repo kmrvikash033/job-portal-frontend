@@ -18,10 +18,10 @@ export const createJob = async ({data,id}) =>{
     }
 }
 
-export const getJobs = async({id})=>{
+export const getJobs = async({id,skills})=>{
     try{
-        
-        const URL = id ? `${BACKEND_URL}/job/${id}`:`${BACKEND_URL}/job`
+        const skillsQuery = skills ? `skills=${skills.join(',')}` : null;
+        const URL = id ? `${BACKEND_URL}/job/${id}`:skillsQuery ? `${BACKEND_URL}/job?${skillsQuery}`: `${BACKEND_URL}/job`
         const response = await axios.get(URL);
         return response;
     }catch(error){

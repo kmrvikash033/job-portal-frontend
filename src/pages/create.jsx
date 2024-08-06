@@ -3,7 +3,7 @@ import { createJob, getJobs } from "../services/job"
 import toast from "react-hot-toast"
 import { useParams } from "react-router-dom"
 
-const SKILLS = [
+export const SKILLS = [
     {
         value: 'React',
         label: 'React'

@@ -3,12 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { deleteJob, getJobs } from "../services/job";
 import { verifyToken } from "../utils/auth";
 import toast from "react-hot-toast";
+import { SKILLS } from "./create";
 function Home(){
     const [jobs, setJobs] = useState([]);
+    const [filterJobs, setFilterJobs] = useState([])
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
     const [user, setUser] = useState(null);
+    const [skills, setSkills] = useState(null);
+    const [search, setSearch] = useState('');
+    const handleSearch = (e)=>{
+        setSearch(e.target.value);
+        setFilterJobs( jobs.filter((job)=>{
+            return job.jobPosition.includes(e.target.value)||job.companyName.includes(e.target.value) || job.description.includes(e.target.value);
+        }))
+    }
     const handleDelete=async(id)=>{
         try{
             const response = await deleteJob(id);
@@ -21,11 +31,12 @@ function Home(){
             toast.error('Job deletion failed')
         }
     }
-    const fetchJobs = async() =>{
+    const fetchJobs = async({skills}) =>{
         setLoading(true)
-        const response = await getJobs({id:null});
+        const response = await getJobs({id:null, skills: skills});
         if(response.status === 200){
             setJobs(response.data);
+            setFilterJobs(response.data);
         }
         setLoading(false);
     }
@@ -41,14 +52,32 @@ function Home(){
         }
         
         fetchUser();
-        fetchJobs();
+        fetchJobs({skills:null});
     },[])
 
+    const handleSkillChange = (skill)=>{
+        setSkills((prev)=> {
+            if(!prev){
+                return [skill]
+            }
+            return prev.includes(skill)? prev.filter((s) => s !== skill) : [...prev, skill];
+        })
+    }
     return (
         <div>
           <h1>Home</h1>
-          
-            {loading ? <h2>loading......</h2>:jobs.map((job)=>{
+          <input type="text" placeholder="Search" value={search} onChange={handleSearch} />
+          <select onChange={(e) => handleSkillChange(e.target.value)} >
+                {SKILLS.map((skill) => {
+                    return <option onSelect={() => handleSkillChange(skill.value)} key={skill} value={skill.value}>{skill.label}</option>
+                })}
+          </select>
+          {skills && skills.map((skill)=>{
+            return <span style={{marginRight: '10px'}} key={skill}>{skill} </span>
+          })}
+          <button disabled={skills === null} onClick={()=>fetchJobs({skills})}>Apply Filter</button>
+          <button onClick={() =>{fetchJobs({ skills: null }); setSkills(null)} }>Clear Filters</button>
+            {loading ? <h2>loading......</h2>:filterJobs.map((job)=>{
                 return (
                     
                         <div key={job._id}>
