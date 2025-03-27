@@ -64,39 +64,196 @@ function Home(){
         })
     }
     return (
-        <div>
-          <h1>Home</h1>
-          <input type="text" placeholder="Search" value={search} onChange={handleSearch} />
-          <select onChange={(e) => handleSkillChange(e.target.value)} >
-                {SKILLS.map((skill) => {
-                    return <option onSelect={() => handleSkillChange(skill.value)} key={skill} value={skill.value}>{skill.label}</option>
-                })}
-          </select>
-          {skills && skills.map((skill)=>{
-            return <span style={{marginRight: '10px'}} key={skill}>{skill} </span>
-          })}
-          <button disabled={skills === null} onClick={()=>fetchJobs({skills})}>Apply Filter</button>
-          <button onClick={() =>{fetchJobs({ skills: null }); setSkills(null)} }>Clear Filters</button>
-            {loading ? <h2>loading......</h2>:filterJobs.map((job)=>{
-                return (
-                    
-                        <div key={job._id}>
-                            <h2>{job.jobPosition}</h2>
-                            <p>{job.companyName}</p>
-                            <p>{job.monthlySalary}</p>
-                            <p>{job.discription} </p>
-                            {job.skills.map((skill)=>{
-                                return <span style={{margin: '10px'}} key={skill}>{skill}</span>
-                            })}
-                            <button onClick={()=> navigate(`/job/${job._id}`)}>View</button>
-                            {authLoading || user===null ? <button disabled>Edit</button>:<button onClick={()=>navigate(`/edit/${job._id}`)}>Edit</button>}
-                            {authLoading || user===null ? <button disabled>Delete</button>:<button onClick={()=>handleDelete(job._id)}>Delete</button>}
-                        </div>
-                    
-                    
-                )
-            })}
-        </div>
+        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '800px', margin: 'auto' }}>
+    <h1 style={{ textAlign: 'center', color: '#333' }}>Home</h1>
+
+    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <input 
+            type="text" 
+            placeholder="Search" 
+            value={search} 
+            onChange={handleSearch} 
+            style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '5px' }} 
+        />
+        <select 
+            onChange={(e) => handleSkillChange(e.target.value)} 
+            style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '5px', cursor: 'pointer' }}
+        >
+            {SKILLS.map((skill) => (
+                <option key={skill} value={skill.value}>{skill.label}</option>
+            ))}
+        </select>
+    </div>
+
+    <div style={{ marginBottom: '10px' }}>
+        {skills && skills.map((skill) => (
+            <span 
+                style={{ 
+                    display: 'inline-block', 
+                    padding: '5px 10px', 
+                    marginRight: '10px', 
+                    backgroundColor: '#007bff', 
+                    color: '#fff', 
+                    borderRadius: '15px', 
+                    fontSize: '14px' 
+                }} 
+                key={skill}
+            >
+                {skill}
+            </span>
+        ))}
+    </div>
+
+    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <button 
+            disabled={skills === null} 
+            onClick={() => fetchJobs({ skills })} 
+            style={{ 
+                padding: '10px 15px', 
+                backgroundColor: skills ? '#28a745' : '#ccc', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: '5px', 
+                cursor: skills ? 'pointer' : 'not-allowed' 
+            }}
+        >
+            Apply Filter
+        </button>
+
+        <button 
+            onClick={() => { fetchJobs({ skills: null }); setSkills(null) }} 
+            style={{ 
+                padding: '10px 15px', 
+                backgroundColor: '#dc3545', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: '5px', 
+                cursor: 'pointer' 
+            }}
+        >
+            Clear Filters
+        </button>
+    </div>
+
+    {loading ? (
+        <h2 style={{ textAlign: 'center', color: '#555' }}>Loading...</h2>
+    ) : (
+        filterJobs.map((job) => (
+            <div 
+                key={job._id} 
+                style={{ 
+                    border: '1px solid #ddd', 
+                    borderRadius: '10px', 
+                    padding: '15px', 
+                    marginBottom: '15px', 
+                    boxShadow: '2px 2px 10px rgba(0,0,0,0.1)', 
+                    backgroundColor: '#fff' 
+                }}
+            >
+                <h2 style={{ color: '#333' }}>{job.jobPosition}</h2>
+                <p style={{ fontWeight: 'bold', color: '#007bff' }}>{job.companyName}</p>
+                <p style={{ color: '#28a745', fontWeight: 'bold' }}>₹{job.monthlySalary}</p>
+                <p style={{ color: '#555' }}>{job.discription}</p>
+                
+                <div style={{ marginTop: '10px' }}>
+                    {job.skills.map((skill) => (
+                        <span 
+                            key={skill} 
+                            style={{ 
+                                display: 'inline-block', 
+                                padding: '5px 10px', 
+                                marginRight: '5px', 
+                                backgroundColor: '#17a2b8', 
+                                color: '#fff', 
+                                borderRadius: '10px', 
+                                fontSize: '12px' 
+                            }}
+                        >
+                            {skill}
+                        </span>
+                    ))}
+                </div>
+
+                <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
+                    <button 
+                        onClick={() => navigate(`/job/${job._id}`)} 
+                        style={{ 
+                            padding: '8px 12px', 
+                            backgroundColor: '#007bff', 
+                            color: '#fff', 
+                            border: 'none', 
+                            borderRadius: '5px', 
+                            cursor: 'pointer' 
+                        }}
+                    >
+                        View
+                    </button>
+
+                    {authLoading || user === null ? (
+                        <button 
+                            disabled 
+                            style={{ 
+                                padding: '8px 12px', 
+                                backgroundColor: '#ccc', 
+                                color: '#666', 
+                                border: 'none', 
+                                borderRadius: '5px', 
+                                cursor: 'not-allowed' 
+                            }}
+                        >
+                            Edit
+                        </button>
+                    ) : (
+                        <button 
+                            onClick={() => navigate(`/edit/${job._id}`)} 
+                            style={{ 
+                                padding: '8px 12px', 
+                                backgroundColor: '#ffc107', 
+                                color: '#333', 
+                                border: 'none', 
+                                borderRadius: '5px', 
+                                cursor: 'pointer' 
+                            }}
+                        >
+                            Edit
+                        </button>
+                    )}
+
+                    {authLoading || user === null ? (
+                        <button 
+                            disabled 
+                            style={{ 
+                                padding: '8px 12px', 
+                                backgroundColor: '#ccc', 
+                                color: '#666', 
+                                border: 'none', 
+                                borderRadius: '5px', 
+                                cursor: 'not-allowed' 
+                            }}
+                        >
+                            Delete
+                        </button>
+                    ) : (
+                        <button 
+                            onClick={() => handleDelete(job._id)} 
+                            style={{ 
+                                padding: '8px 12px', 
+                                backgroundColor: '#dc3545', 
+                                color: '#fff', 
+                                border: 'none', 
+                                borderRadius: '5px', 
+                                cursor: 'pointer' 
+                            }}
+                        >
+                            Delete
+                        </button>
+                    )}
+                </div>
+            </div>
+        ))
+    )}
+</div>
+
     )
 }
 
